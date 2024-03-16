@@ -41,19 +41,6 @@
             display: inline-block;
             margin-right: 5px;
         }
-        #result-container {
-            position: relative;
-        }
-        #result {
-            width: 30px;
-            height: 30px;
-            border-radius: 30%;
-            margin: auto;
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: -10px; /* Alterado para separar mais do botão */
-        }
         #message {
             margin-top: 10px;
             color: #ccc;
@@ -131,10 +118,8 @@
     <div id="sequence"></div>
 
     <h2>Resultado:</h2>
-    <div id="result-container">
-        <div id="result"></div>
-        <div id="message"></div>
-    </div>
+    <div id="message"></div>
+    <button id="shareButton" onclick="shareResult()" style="margin-top: 10px;">Compartilhar</button>
 
     <div class="calculator-container" style="display: none;">
         <h2>Calculadora de Gerenciamento de Banca</h2>
@@ -162,7 +147,6 @@
         }
 
         function getResult() {
-            var resultDiv = document.getElementById('result');
             var messageDiv = document.getElementById('message');
             messageDiv.textContent = "Obtendo entrada...";
 
@@ -171,28 +155,25 @@
 
                 // Verifica se a sequência corresponde a azul, vermelho, azul, vermelho
                 if (lastFour[0] === 'blue' && lastFour[1] === 'red' && lastFour[2] === 'blue' && lastFour[3] === 'red') {
-                    resultDiv.style.backgroundColor = 'blue'; // Muda a cor da bola para azul
+                    messageDiv.textContent = "Entrada bacboo: Azul!";
                 } 
                 // Verifica se a sequência corresponde a vermelho, azul, vermelho, azul
                 else if (lastFour[0] === 'red' && lastFour[1] === 'blue' && lastFour[2] === 'red' && lastFour[3] === 'blue') {
-                    resultDiv.style.backgroundColor = 'red'; // Muda a cor da bola para vermelho
+                    messageDiv.textContent = "Entrada bacboo: Vermelho!";
                 } else {
                     var countBlue = lastFour.filter(color => color === 'blue').length;
                     var countRed = lastFour.filter(color => color === 'red').length;
 
                     if (countBlue === 2 && countRed === 2) {
-                        resultDiv.style.backgroundColor = 'blue'; // Muda a cor da bola para azul
+                        messageDiv.textContent = "Entre :apostar na cor 🔵";
                     } else if (countBlue === 3) {
-                        resultDiv.style.backgroundColor = 'red'; // Muda a cor da bola para vermelho
+                        messageDiv.textContent = "apostar na cor 🔴!";
                     } else if (countRed === 3) {
-                        resultDiv.style.backgroundColor = 'blue'; // Muda a cor da bola para azul
+                        messageDiv.textContent = "apostar na cor 🔵!";
                     } else {
-                        resultDiv.style.backgroundColor = 'transparent'; // Remove a cor da bola se o padrão não for reconhecido
+                        messageDiv.textContent = " Nenhuma Entrada!";
                     }
                 }
-
-                // Limpa a mensagem após exibir o resultado
-                messageDiv.textContent = "";
 
                 // Limpa o resultado após 10 segundos
                 setTimeout(function() {
@@ -203,9 +184,8 @@
         }
 
         function clearResult() {
-            var resultDiv = document.getElementById('result');
-            resultDiv.textContent = "";
-            resultDiv.style.backgroundColor = 'transparent'; // Limpa o resultado
+            var messageDiv = document.getElementById('message');
+            messageDiv.textContent = "";
         }
 
         function updateSequenceDisplay() {
@@ -218,6 +198,31 @@
                 dot.style.backgroundColor = color;
                 sequenceDiv.appendChild(dot);
             });
+        }
+
+        // Função para compartilhar o resultado no WhatsApp
+        function shareOnWhatsApp(message) {
+            var encodedMessage = encodeURIComponent(message);
+            var whatsappLink = "https://wa.me/?text=" + encodedMessage;
+            window.open(whatsappLink, "_blank");
+        }
+
+        // Função para compartilhar o resultado no Telegram
+        function shareOnTelegram(message) {
+            var encodedMessage = encodeURIComponent(message);
+            var telegramLink = "https://t.me/share/url?url=&text=" + encodedMessage;
+            window.open(telegramLink, "_blank");
+        }
+
+        // Função para compartilhar o resultado nas redes sociais
+        function shareResult() {
+            var resultColor = document.getElementById('message').textContent;
+            var entryMessage = "Entrada bacboo: " + resultColor;
+
+            // Opções para compartilhar a mensagem nas redes sociais
+            if (confirm("Compartilhar esta mensagem nas redes sociais?\n\n" + entryMessage)) {
+                shareOnWhatsApp(entryMessage); // Alteração aqui para chamar diretamente a função do WhatsApp
+            }
         }
 
         var bankrollVisible = false;
