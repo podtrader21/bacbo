@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robô de Cassino</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #121212;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            font-size: 36px;
+            margin-top: 50px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        #sequence {
+            margin-top: 20px;
+        }
+        .color-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        #result-container {
+            position: relative;
+        }
+        #result {
+            width: 30px;
+            height: 30px;
+            border-radius: 30%;
+            margin: auto;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -10px; /* Alterado para separar mais do botão */
+        }
+        #message {
+            margin-top: 10px;
+            color: #ccc;
+        }
+        .logo {
+            width: 150px;
+            margin-top: 30px;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+        .calculator-container {
+            margin-top: 20px;
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        .calculator-container h2 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .calculator-container input[type="number"] {
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            width: 100px;
+        }
+        .calculator-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #555;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .calculator-container button:hover {
+            background-color: #777;
+        }
+        .bankroll-results {
+            margin-top: 20px;
+            color: #fff;
+            text-align: left;
+        }
+        /* Estilos para o formulário de login */
+        #loginForm {
+            margin-top: 50px;
+        }
+        #loginForm input {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Robô de Cassino</h1>
+    <img src="https://cdn.dfg.com.br/itemthumbnails/931048518-money-bot-dados-bac-bo-original-3EE9-thumbnail.webp" alt="Logo" class="logo">
+
+    <div id="robot"></div>
+    <button onclick="changeColor('blue')">Selecionar Azul</button>
+    <button onclick="changeColor('red')">Selecionar Vermelho</button>
+    <button onclick="getResult()">Obter Entrada</button>
+    <button onclick="clearSequence()">Limpar Sequência</button>
+    <button onclick="toggleBankroll()">Gerenciamento de Banca</button>
+
+    <h2>Sequência de Cores Selecionadas:</h2>
+    <div id="sequence"></div>
+
+    <h2>Resultado:</h2>
+    <div id="result-container">
+        <div id="result"></div>
+        <div id="message"></div>
+    </div>
+
+    <div class="calculator-container" style="display: none;">
+        <h2>Calculadora de Gerenciamento de Banca</h2>
+        <input type="number" id="inputAmount" placeholder="Digite o valor">
+        <button onclick="calculateBankroll()">Calcular</button>
+        <div id="bankrollResults" class="bankroll-results"></div>
+    </div>
+
+    <!-- Botão de Cadastro -->
+    <button onclick="window.location.href='https://go.aff.arvore.club/j9p0bro7'" style="margin-top: 20px;">Cadastre-se</button>
+
+    <script>
+        var sequence = []; // Array para armazenar a sequência de cores selecionadas
+
+        function changeColor(color) {
+            var robot = document.getElementById('robot');
+            robot.style.backgroundColor = color;
+            sequence.push(color); // Adiciona a cor selecionada à sequência
+            updateSequenceDisplay(); // Atualiza a exibição da sequência
+        }
+
+        function clearSequence() {
+            sequence = []; // Limpa a sequência
+            updateSequenceDisplay(); // Atualiza a exibição da sequência
+        }
+
+        function getResult() {
+            var resultDiv = document.getElementById('result');
+            var messageDiv = document.getElementById('message');
+            messageDiv.textContent = "Obtendo entrada...";
+
+            setTimeout(function() {
+                var lastFour = sequence.slice(-4); // Obtém as últimas quatro cores selecionadas
+
+                // Verifica se a sequência corresponde a azul, vermelho, azul, vermelho
+                if (lastFour[0] === 'blue' && lastFour[1] === 'red' && lastFour[2] === 'blue' && lastFour[3] === 'red') {
+                    resultDiv.style.backgroundColor = 'blue'; // Muda a cor da bola para azul
+                } 
+                // Verifica se a sequência corresponde a vermelho, azul, vermelho, azul
+                else if (lastFour[0] === 'red' && lastFour[1] === 'blue' && lastFour[2] === 'red' && lastFour[3] === 'blue') {
+                    resultDiv.style.backgroundColor = 'red'; // Muda a cor da bola para vermelho
+                } else {
+                    var countBlue = lastFour.filter(color => color === 'blue').length;
+                    var countRed = lastFour.filter(color => color === 'red').length;
+
+                    if (countBlue === 2 && countRed === 2) {
+                        resultDiv.style.backgroundColor = 'blue'; // Muda a cor da bola para azul
+                    } else if (countBlue === 3) {
+                        resultDiv.style.backgroundColor = 'red'; // Muda a cor da bola para vermelho
+                    } else if (countRed === 3) {
+                        resultDiv.style.backgroundColor = 'blue'; // Muda a cor da bola para azul
+                    } else {
+                        resultDiv.style.backgroundColor = 'transparent'; // Remove a cor da bola se o padrão não for reconhecido
+                    }
+                }
+
+                // Limpa a mensagem após exibir o resultado
+                messageDiv.textContent = "";
+
+                // Limpa o resultado após 10 segundos
+                setTimeout(function() {
+                    clearResult();
+                }, 10000);
+
+            }, 4000); // 4 segundos
+        }
+
+        function clearResult() {
+            var resultDiv = document.getElementById('result');
+            resultDiv.textContent = "";
+            resultDiv.style.backgroundColor = 'transparent'; // Limpa o resultado
+        }
+
+        function updateSequenceDisplay() {
+            var sequenceDiv = document.getElementById('sequence');
+            sequenceDiv.innerHTML = ''; // Limpa o conteúdo anterior
+
+            sequence.forEach(color => {
+                var dot = document.createElement('div');
+                dot.classList.add('color-dot');
+                dot.style.backgroundColor = color;
+                sequenceDiv.appendChild(dot);
+            });
+        }
+
+        var bankrollVisible = false;
+
+        function toggleBankroll() {
+            var calculatorContainer = document.querySelector('.calculator-container');
+            if (bankrollVisible) {
+                calculatorContainer.style.display = 'none';
+                clearBankrollResults(); // Limpa os resultados ao esconder a calculadora
+            } else {
+                calculatorContainer.style.display = 'block';
+            }
+            bankrollVisible = !bankrollVisible;
+        }
+
+        function calculateBankroll() {
+            var inputAmount = parseFloat(document.getElementById('inputAmount').value);
+            var bankrollResults = document.getElementById('bankrollResults');
+            clearBankrollResults(); // Limpa os resultados anteriores
+
+            for (var i = 1; i <= 30; i++) {
+                var calculatedAmount = (inputAmount * 0.10) * i;
+                var dividedAmount = calculatedAmount / 4; // Divide o valor calculado em 4 partes iguais
+                for (var j = 1; j <= 4; j++) {
+                    var resultElement = document.createElement('div');
+                    resultElement.textContent = "Dia " + i + ", Parte " + j + ": $" + dividedAmount.toFixed(2);
+                    bankrollResults.appendChild(resultElement);
+                }
+            }
+        }
+
+        function clearBankrollResults() {
+            var bankrollResults = document.getElementById('bankrollResults');
+            bankrollResults.innerHTML = '';
+        }
+
+        function loginUser() {
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+
+            // Aqui você pode enviar esses dados para o servidor para autenticação
+            // Por exemplo, usando XMLHttpRequest ou Fetch API
+
+            // Após a autenticação bem-sucedida, redirecione o usuário para outra página ou execute ações necessárias
+
+            // Por enquanto, só impedimos o envio do formulário
+            return false;
+        }
+    </script>
+</body>
+</html>
