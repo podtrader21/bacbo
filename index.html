@@ -104,15 +104,18 @@
     </style>
 </head>
 <body>
-    <h1>Robô de Cassino</h1>
-    <img src="https://cdn.dfg.com.br/itemthumbnails/931048518-money-bot-dados-bac-bo-original-3EE9-thumbnail.webp" alt="Logo" class="logo">
-
+   
+    
+  <iframe src="https://blaze-codigo.com/r/27w68" width="100%" height="600px" frameborder="0"></iframe>
     <div id="robot"></div>
     <button onclick="changeColor('blue')">Selecionar Azul</button>
     <button onclick="changeColor('red')">Selecionar Vermelho</button>
     <button onclick="getResult()">Obter Entrada</button>
     <button onclick="clearSequence()">Limpar Sequência</button>
-    <button onclick="toggleBankroll()">Gerenciamento de Banca</button>
+    
+
+    <button onclick="recordResult('✅win')">Win</button>
+    <button onclick="recordResult('❌loss')">Loss</button>
 
     <h2>Sequência de Cores Selecionadas:</h2>
     <div id="sequence"></div>
@@ -128,11 +131,16 @@
         <div id="bankrollResults" class="bankroll-results"></div>
     </div>
 
-    <!-- Botão de Cadastro -->
-    <button onclick="window.location.href='https://go.aff.arvore.club/j9p0bro7'" style="margin-top: 20px;">Cadastre-se</button>
+
+    <div id="results"></div>
+  
+  
+
+    <button onclick="clearResults()">Limpar Histórico</button>
 
     <script>
         var sequence = []; // Array para armazenar a sequência de cores selecionadas
+        var results = []; // Array para armazenar os resultados dos cliques em "Win" e "Loss"
 
         function changeColor(color) {
             var robot = document.getElementById('robot');
@@ -152,27 +160,14 @@
 
             setTimeout(function() {
                 var lastFour = sequence.slice(-4); // Obtém as últimas quatro cores selecionadas
+                var resultSum = lastFour.reduce((acc, val) => acc + (val === 'blue' ? 1 : -1), 0); // Soma dos resultados
 
-                // Verifica se a sequência corresponde a azul, vermelho, azul, vermelho
-                if (lastFour[0] === 'blue' && lastFour[1] === 'red' && lastFour[2] === 'blue' && lastFour[3] === 'red') {
-                    messageDiv.textContent = "Entrada bacboo: Azul!";
-                } 
-                // Verifica se a sequência corresponde a vermelho, azul, vermelho, azul
-                else if (lastFour[0] === 'red' && lastFour[1] === 'blue' && lastFour[2] === 'red' && lastFour[3] === 'blue') {
-                    messageDiv.textContent = "Entrada bacboo: Vermelho!";
+                if (resultSum > 0) {
+                    messageDiv.textContent = "Apostar na cor vermelha ❤️";
+                } else if (resultSum < 0) {
+                    messageDiv.textContent = "Apostar na cor azul 💙";
                 } else {
-                    var countBlue = lastFour.filter(color => color === 'blue').length;
-                    var countRed = lastFour.filter(color => color === 'red').length;
-
-                    if (countBlue === 2 && countRed === 2) {
-                        messageDiv.textContent = "Entre :apostar na cor 🔵";
-                    } else if (countBlue === 3) {
-                        messageDiv.textContent = "apostar na cor 🔴!";
-                    } else if (countRed === 3) {
-                        messageDiv.textContent = "apostar na cor 🔵!";
-                    } else {
-                        messageDiv.textContent = " Nenhuma Entrada!";
-                    }
+                    messageDiv.textContent = "Nenhuma Entrada!";
                 }
 
                 // Limpa o resultado após 10 segundos
@@ -199,29 +194,22 @@
                 sequenceDiv.appendChild(dot);
             });
         }
+// Função para compartilhar o resultado no Telegram
+function shareResult() {
+    var resultMessage = document.getElementById('message').textContent;
+    var groupLink = encodeURIComponent("https://t.me/+vZUQvw7N3ZI3YTYx"); // Link direto para o grupo
+    var telegramLink = "tg://msg_url?url=" + groupLink + "&text=" + encodeURIComponent(resultMessage);
+    window.open(telegramLink, "_blank");
+}
 
-        // Função para compartilhar o resultado no WhatsApp
-        function shareOnWhatsApp(message) {
-            var encodedMessage = encodeURIComponent(message);
-            var whatsappLink = "https://wa.me/?text=" + encodedMessage;
-            window.open(whatsappLink, "_blank");
-        }
-
-        // Função para compartilhar o resultado no Telegram
-        function shareOnTelegram(message) {
-            var encodedMessage = encodeURIComponent(message);
-            var telegramLink = "https://t.me/share/url?url=&text=" + encodedMessage;
-            window.open(telegramLink, "_blank");
-        }
 
         // Função para compartilhar o resultado nas redes sociais
         function shareResult() {
-            var resultColor = document.getElementById('message').textContent;
-            var entryMessage = "Entrada bacboo: " + resultColor;
+            var resultMessage = document.getElementById('message').textContent;
 
             // Opções para compartilhar a mensagem nas redes sociais
-            if (confirm("Compartilhar esta mensagem nas redes sociais?\n\n" + entryMessage)) {
-                shareOnWhatsApp(entryMessage); // Alteração aqui para chamar diretamente a função do WhatsApp
+            if (confirm("Compartilhar esta mensagem no grupo do Telegram?\n\n" + resultMessage)) {
+                shareOnTelegram(resultMessage); // Chama a função de compartilhamento do Telegram
             }
         }
 
@@ -259,17 +247,38 @@
             bankrollResults.innerHTML = '';
         }
 
-        function loginUser() {
-            var email = document.getElementById('email').value;
-            var password = document.getElementById('password').value;
+        function recordResult(outcome) {
+            // Obter a hora atual
+            var currentTime = new Date();
+            var hours = currentTime.getHours();
+            var minutes = currentTime.getMinutes();
+            var seconds = currentTime.getSeconds();
+            var formattedTime = hours + ":" + minutes + ":" + seconds;
 
-            // Aqui você pode enviar esses dados para o servidor para autenticação
-            // Por exemplo, usando XMLHttpRequest ou Fetch API
+            // Adicionar o resultado e o horário atual ao array de resultados
+            results.push({outcome: outcome, time: formattedTime});
 
-            // Após a autenticação bem-sucedida, redirecione o usuário para outra página ou execute ações necessárias
+            // Atualizar a exibição dos resultados na página
+            updateResultsDisplay();
+        }
 
-            // Por enquanto, só impedimos o envio do formulário
-            return false;
+        function updateResultsDisplay() {
+            var resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = ''; // Limpar os resultados anteriores
+
+            // Iterar sobre os resultados e exibi-los na página
+            results.forEach(result => {
+                var resultElement = document.createElement('div');
+                // Exibir o resultado e o horário
+                resultElement.textContent = result.outcome.charAt(0).toUpperCase() + result.outcome.slice(1) + " - " + result.time;
+                resultsDiv.appendChild(resultElement);
+            });
+        }
+
+        // Função para limpar o histórico de resultados
+        function clearResults() {
+            results = []; // Limpar o array de resultados
+            updateResultsDisplay(); // Atualizar a exibição na página
         }
     </script>
 </body>
